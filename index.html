@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ExpenseIQ</title>
+
+<link rel="stylesheet" href="style.css">
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+<div class="container">
+
+<header>
+    <h1>ExpenseIQ</h1>
+    <button id="addBtn">+ Add Transaction</button>
+</header>
+
+<section class="hero">
+    <h2>Smart Expense Tracking Made Simple</h2>
+    <p>
+        Track income, manage expenses, monitor spending habits,
+        and gain insights through interactive analytics.
+    </p>
+</section>
+
+<section class="summary">
+
+    <div class="card">
+        <h3>Balance</h3>
+        <p id="balance">₹0</p>
+    </div>
+
+    <div class="card">
+        <h3>Income</h3>
+        <p id="income">₹0</p>
+    </div>
+
+    <div class="card">
+        <h3>Expenses</h3>
+        <p id="expense">₹0</p>
+    </div>
+
+</section>
+
+<section class="chart-card">
+    <canvas id="expenseChart"></canvas>
+</section>
+
+<section class="transactions">
+
+    <div class="top-row">
+        <h2>Transactions</h2>
+        <input type="text" id="search" placeholder="Search...">
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Category</th>
+                <th>Amount</th>
+                <th>Date</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+
+        <tbody id="transactionList"></tbody>
+    </table>
+
+</section>
+
+</div>
+
+<div class="modal" id="modal">
+
+    <div class="modal-content">
+
+        <h2>Add Transaction</h2>
+
+        <input type="text" id="title" placeholder="Title">
+
+        <input type="number" id="amount" placeholder="Amount">
+
+        <select id="type">
+            <option value="income">Income</option>
+            <option value="expense">Expense</option>
+        </select>
+
+        <select id="category">
+            <option>Food</option>
+            <option>Transport</option>
+            <option>Shopping</option>
+            <option>Bills</option>
+            <option>Salary</option>
+            <option>Freelance</option>
+        </select>
+
+        <input type="date" id="date">
+
+        <div class="buttons">
+            <button id="saveBtn">Save</button>
+            <button id="closeBtn">Cancel</button>
+        </div>
+
+    </div>
+
+</div>
+
+<script src="script.js"></script>
+
+</body>
+</html>
