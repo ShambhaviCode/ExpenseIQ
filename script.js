@@ -16,8 +16,7 @@ const expenseEl = document.getElementById("expense");
 const transactionList = document.getElementById("transactionList");
 const searchInput = document.getElementById("search");
 
-let transactions =
-JSON.parse(localStorage.getItem("expenseiq")) || [];
+let transactions = loadTransactions();
 
 let chart;
 
@@ -40,8 +39,15 @@ saveBtn.addEventListener("click", () => {
     const category = categoryInput.value;
     const date = dateInput.value;
 
-    if (!title || !amount || !date) {
+    if (!title || !date) {
         alert("Please fill all fields");
+        return;
+    }
+
+    // The type select decides the sign, so the amount itself must be positive.
+    // A negative "expense" would otherwise be stored as income.
+    if (!Number.isFinite(amount) || amount <= 0) {
+        alert("Amount must be greater than 0");
         return;
     }
 
@@ -68,6 +74,17 @@ saveBtn.addEventListener("click", () => {
 
     modal.style.display = "none";
 });
+
+// Load Local Storage
+function loadTransactions() {
+    try {
+        const saved = JSON.parse(localStorage.getItem("expenseiq"));
+        return Array.isArray(saved) ? saved : [];
+    } catch {
+        // Corrupt data shouldn't stop the whole app from loading.
+        return [];
+    }
+}
 
 // Save Local Storage
 function saveData() {
@@ -108,21 +125,33 @@ function renderTransactions() {
         .reverse()
         .forEach(t => {
 
-            transactionList.innerHTML += `
-                <tr>
-                    <td>${t.title}</td>
-                    <td>${t.category}</td>
-                    <td>₹${Math.abs(t.amount)}</td>
-                    <td>${t.date}</td>
-                    <td>
-                        <button
-                        class="delete-btn"
-                        onclick="deleteTransaction(${t.id})">
-                        Delete
-                        </button>
-                    </td>
-                </tr>
-            `;
+            // Build cells with textContent so titles like
+            // "<img src=x onerror=...>" are shown, not executed.
+            const row = document.createElement("tr");
+
+            [
+                t.title,
+                t.category,
+                `${t.amount < 0 ? "-" : "+"}${formatMoney(Math.abs(t.amount))}`,
+                t.date
+            ].forEach(text => {
+                const cell = document.createElement("td");
+                cell.textContent = text;
+                row.appendChild(cell);
+            });
+
+            const actionCell = document.createElement("td");
+            const deleteBtn = document.createElement("button");
+            deleteBtn.className = "delete-btn";
+            deleteBtn.textContent = "Delete";
+            deleteBtn.addEventListener(
+                "click",
+                () => deleteTransaction(t.id)
+            );
+            actionCell.appendChild(deleteBtn);
+            row.appendChild(actionCell);
+
+            transactionList.appendChild(row);
 
         });
 
@@ -143,14 +172,24 @@ function updateSummary() {
 
     });
 
+    const balance = income - expense;
+
     balanceEl.textContent =
-        `₹${income - expense}`;
+        `${balance < 0 ? "-" : ""}${formatMoney(Math.abs(balance))}`;
 
     incomeEl.textContent =
-        `₹${income}`;
+        formatMoney(income);
 
     expenseEl.textContent =
-        `₹${expense}`;
+        formatMoney(expense);
+}
+
+// Round to paise so sums like 0.1 + 0.2 don't show
+// as ₹0.30000000000000004.
+function formatMoney(value) {
+    return `₹${value.toLocaleString("en-IN", {
+        maximumFractionDigits: 2
+    })}`;
 }
 
 // Chart
